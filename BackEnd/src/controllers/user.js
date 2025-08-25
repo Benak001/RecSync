@@ -8,7 +8,7 @@ const  registerUser=async(req,res)=>{
     if(!email||!name||!password){
         return res.status(401).json({message:"fields cannot be empty"});
     }
-    const exists=await User.findOne({email:"benak@gmail.com"});
+    const exists=await User.findOne({email:email});
     if(exists){
         return res.status(400).json({message:"email  already exists"});
     }

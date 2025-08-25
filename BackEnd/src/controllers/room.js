@@ -2,9 +2,9 @@ class rooms{
     constructor(){
         this.room={};
     }
-    createRoom(userid,id){
+    createRoom(userid,id,hostId){
         if(!this.room[id]){
-            this.room[id]={users:[]};
+            this.room[id]={users:[],host:hostId};
             return true;
         }
         return false;
@@ -13,7 +13,7 @@ class rooms{
         if(this.room[roomId]){
               if (!this.room[roomId].users.includes(user)) {
                 this.room[roomId].users.push(user);
-                return true;
+                return this.room[roomId].host;
               }
         }
         return false;

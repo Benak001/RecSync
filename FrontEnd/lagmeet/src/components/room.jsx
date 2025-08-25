@@ -44,7 +44,7 @@ function Room() {
      navigate(`/Chat/${roomid}`);
   }
   return (
-    <div>
+    <div className="bg-blue-500 text-white p-4 rounded-lg">
       <h3>CreateRoom:</h3>
       <div className='flex'>
         <form onSubmit={handleCreate}>

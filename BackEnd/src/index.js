@@ -8,7 +8,7 @@ import { app ,io,server} from './app.js';
 // import {Server}  from 'socket.io';
 
 
-//ConnectDb();
+ConnectDb();
 const PORT=process.env.PORT||5000;
 // const server = http.createServer(app)
 // const io=new Server(server);

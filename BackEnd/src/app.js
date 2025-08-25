@@ -6,20 +6,25 @@ import http from 'http';
 import {Server}  from 'socket.io';
 import {nanoid} from 'nanoid'
 import { rooms } from "./controllers/room.js";
+import jwt from 'jsonwebtoken';
+import User from "./models/user.js";
+import cookie from "cookie"
 
 
 const app=express()
 const server = http.createServer(app)
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials:true,
+}));
 const io=new Server(server,{
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
+      origin: "http://localhost:5173",
+      credentials:true,
+      methods: ["GET", "POST"],
+      // allowedHeaders: ["Content-Type", "Authorization"],
     }
   });
-
-
-
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
@@ -28,10 +33,32 @@ import userRouter from "./routes/userRoutes.js"
 app.use("/users",userRouter);
 
 const room=new rooms();
+io.use(async (socket, next) => {
+  try{
+    console.log('request for authentication');
+    const token = socket.request.headers.cookie;
+    if(!token){
+        console.log('invalid token');
+        next(new Error("unauthorized request"));        
+    }
+    const cookies = cookie.parse(token);
+    const decoded=jwt.verify(cookies.accessToken,process.env.ACCESS_TOKEN_SECRET);
+    const user=await User.findById(decoded._id);
+    if(!user){
+       // res.status(400).json({message:"Invalid access token"});
+       console.log('unauthorized user');
+        next(new Error("Invalid access token"));
+    }
+    socket.User=user;
+    next();
+    }catch(err){
+      console.log('error while processing auth');
+       next(new Error("Invalid access token"));
+    }
+});
 io.on('connection', (socket) => {
+    
     console.log('a user connected',socket.id);
-
-    ///const rooms={};
     socket.on('message',(message)=>{
       console.log(message);
       const roomid=[...socket.rooms].filter(id=>id!==socket.id)[0];
@@ -55,11 +82,10 @@ io.on('connection', (socket) => {
             return;
         }
         socket.join(roomid);
-        const flag=room.joinRoom(socket.id,roomid);
-        ///rooms[roomid].add(socket.id);
-        if(flag){
+        const host=room.joinRoom(socket.id,roomid);
+        if(host){
           setTimeout(() => {
-            socket.emit('joinedroom', roomid); 
+            socket.emit('joinedroom',roomid,socket.User.email,host); 
          }, 100);
           
           console.log(`user ${socket.id} joined room ${roomid}`)

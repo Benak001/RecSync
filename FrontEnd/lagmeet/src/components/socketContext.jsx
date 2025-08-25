@@ -5,14 +5,14 @@ import { createContext, useContext} from 'react';
 import App from '../App';
 
 const SocketContext = createContext();
-
 export function SocketProvider({children}) {
   const sockets=useRef(null);
   useEffect(()=>{
-    sockets.current=io('http://localhost:8000');
+    sockets.current=io('http://localhost:8000',{
+      withCredentials: true,
+    });
     sockets.current.on("connect", () => {
-    console.log("Connected to socket.current.io server");
-    
+    console.log("Connected to socket.current.io server");    
   });
 
   return () => {

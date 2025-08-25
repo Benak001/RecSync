@@ -6,6 +6,8 @@ import Chat from './components/chat'
 import Room from './components/room'
 import { BrowserRouter,Route,Routes } from 'react-router'
 import { useNavigate } from 'react-router'
+import Login from './components/login'
+import Register from './components/register'
 
 function App() {
 const  [sen,setsen]=useState("");
@@ -22,9 +24,10 @@ async function functioname(){
   return (
     <>
     {sen}
-    <Routes>
-        
+    <Routes>x
         <Route path="/" element={<Room/>} />
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/register" element={<Register/>}/>
         <Route path="/Chat/:id" element={<Chat/>} />
       </Routes>
     </>
